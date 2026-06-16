@@ -400,19 +400,16 @@ const VISITS = {{ monthly_visits|safe }};
 const CALS   = {{ monthly_cal|safe }};
 
 function makeChart(id, data, color, bgColor, unit, stepSize){
-  const ctx = document.getElementById(id).getContext('2d');
+  const ctx  = document.getElementById(id).getContext('2d');
+  const isBar = LABELS.length < 2;
+  const dataset = isBar
+    ? { data, backgroundColor: color, borderRadius: 10, borderSkipped: false }
+    : { data, borderColor: color, backgroundColor: bgColor,
+        tension:.4, pointRadius:6, pointBackgroundColor: color,
+        pointHoverRadius:8, fill:true, borderWidth:2.5 };
   new Chart(ctx,{
-    type:'line',
-    data:{
-      labels: LABELS,
-      datasets:[{
-        data: data,
-        borderColor: color,
-        backgroundColor: bgColor,
-        tension:.4, pointRadius:6, pointBackgroundColor:color,
-        pointHoverRadius:8, fill:true, borderWidth:2.5
-      }]
-    },
+    type: isBar ? 'bar' : 'line',
+    data:{ labels: LABELS, datasets:[dataset] },
     options:{
       responsive:true,
       plugins:{
