@@ -100,13 +100,15 @@ body{font-family:'Assistant',sans-serif;background:#f8fafc;color:#111827;min-hei
 .program-pill .ptrainer{font-size:11px;opacity:.8;display:block}
 .no-program{text-align:center;padding:16px 4px;color:#d1d5db;font-size:22px}
 
-/* ── Chart card ── */
+/* ── Chart cards ── */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
 .chart-card{
   background:#fff;border-radius:20px;padding:24px;
   box-shadow:0 2px 12px rgba(0,0,0,.06);border:1.5px solid #f3f4f6;
-  margin-bottom:28px;
 }
-.chart-card canvas{max-height:260px}
+.chart-card canvas{max-height:220px}
+.chart-title{font-size:16px;font-weight:700;color:#111827;margin-bottom:16px}
+@media(max-width:640px){.charts-row{grid-template-columns:1fr}}
 
 /* ── Recent check-ins ── */
 .checkins-card{
@@ -286,17 +288,24 @@ body{font-family:'Assistant',sans-serif;background:#f8fafc;color:#111827;min-hei
     {% endfor %}
   </div>
 
-  <!-- Progress Chart -->
-  <div class="chart-card">
-    <div class="section-header" style="margin-bottom:20px">
-      <div class="section-title">📈 גרף התקדמות חודשי</div>
+  <!-- Progress Charts -->
+  <div class="section-title" style="margin-bottom:16px">📈 גרף התקדמות חודשי</div>
+  {% if monthly_visits != '[]' %}
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">🏃 כניסות לחודש</div>
+      <canvas id="visitsChart"></canvas>
     </div>
-    {% if monthly_visits != '[]' %}
-    <canvas id="progressChart"></canvas>
-    {% else %}
-    <div class="empty">עוד אין נתוני כניסות.<br>לחץ "הגעתי לאימון!" לאחר כל אימון 💪</div>
-    {% endif %}
+    <div class="chart-card">
+      <div class="chart-title">🔥 קלוריות לחודש</div>
+      <canvas id="calChart"></canvas>
+    </div>
   </div>
+  {% else %}
+  <div class="chart-card" style="margin-bottom:28px">
+    <div class="empty">עוד אין נתוני כניסות.<br>לחץ "הגעתי לאימון!" לאחר כל אימון 💪</div>
+  </div>
+  {% endif %}
 
   <!-- Recent Check-ins -->
   <div class="checkins-card">
@@ -386,66 +395,52 @@ function setDuration(val,btn){
 
 // ── Chart.js ──
 {% if monthly_visits != '[]' %}
-const ctx=document.getElementById('progressChart').getContext('2d');
-new Chart(ctx,{
-  type:'line',
-  data:{
-    labels:{{ monthly_labels|safe }},
-    datasets:[
-      {
-        label:'כניסות',
-        data:{{ monthly_visits|safe }},
-        borderColor:'#10b981',
-        backgroundColor:'rgba(16,185,129,.12)',
-        tension:.4,pointRadius:6,pointBackgroundColor:'#10b981',
-        pointHoverRadius:8,fill:true,borderWidth:2.5,
-        yAxisID:'y1',
+const LABELS = {{ monthly_labels|safe }};
+const VISITS = {{ monthly_visits|safe }};
+const CALS   = {{ monthly_cal|safe }};
+
+function makeChart(id, data, color, bgColor, unit, stepSize){
+  const ctx = document.getElementById(id).getContext('2d');
+  new Chart(ctx,{
+    type:'line',
+    data:{
+      labels: LABELS,
+      datasets:[{
+        data: data,
+        borderColor: color,
+        backgroundColor: bgColor,
+        tension:.4, pointRadius:6, pointBackgroundColor:color,
+        pointHoverRadius:8, fill:true, borderWidth:2.5
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          rtl:true,
+          backgroundColor:'rgba(17,24,39,.85)',
+          padding:12,
+          callbacks:{
+            title: items => items[0].label,
+            label: item => item.parsed.y + ' ' + unit
+          }
+        }
       },
-      {
-        label:'קלוריות',
-        data:{{ monthly_cal|safe }},
-        borderColor:'#f59e0b',
-        backgroundColor:'rgba(245,158,11,.08)',
-        tension:.4,pointRadius:6,pointBackgroundColor:'#f59e0b',
-        pointHoverRadius:8,fill:true,borderWidth:2.5,
-        yAxisID:'y2',
-      }
-    ]
-  },
-  options:{
-    responsive:true,
-    interaction:{mode:'index',intersect:false},
-    plugins:{
-      legend:{
-        position:'top',
-        labels:{font:{family:'Assistant',size:13},usePointStyle:true,padding:20}
-      },
-      tooltip:{
-        rtl:true,
-        backgroundColor:'rgba(17,24,39,.85)',
-        padding:12,
-        callbacks:{
-          label:ctx=>ctx.dataset.label+': '+(ctx.dataset.yAxisID==='y2'?ctx.parsed.y+' קל\'':ctx.parsed.y+' אימונים')
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{family:'Assistant',size:12}}},
+        y:{
+          grid:{color:'rgba(0,0,0,.06)'},
+          ticks:{stepSize:stepSize, font:{family:'Assistant',size:12}},
+          beginAtZero:true
         }
       }
-    },
-    scales:{
-      x:{grid:{display:false},ticks:{font:{family:'Assistant',size:12}}},
-      y1:{
-        type:'linear',position:'right',
-        grid:{color:'rgba(0,0,0,.06)'},
-        ticks:{stepSize:1,font:{family:'Assistant',size:12}},
-        title:{display:true,text:'כניסות',font:{family:'Assistant',size:12}}
-      },
-      y2:{
-        type:'linear',position:'left',
-        grid:{display:false},
-        ticks:{font:{family:'Assistant',size:12}},
-        title:{display:true,text:'קלוריות',font:{family:'Assistant',size:12}}
-      }
     }
-  }
-});
+  });
+}
+
+makeChart('visitsChart', VISITS, '#10b981', 'rgba(16,185,129,.12)', 'אימונים', 1);
+makeChart('calChart',    CALS,   '#f59e0b', 'rgba(245,158,11,.10)', 'קל\'',    50);
 {% endif %}
 </script>
 </body>
