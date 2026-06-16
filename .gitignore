@@ -1,0 +1,5 @@
+fitzone.db
+__pycache__/
+*.pyc
+.env
+*.log

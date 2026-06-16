@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitZone – הדשבורד שלי</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Assistant',sans-serif;background:#f8fafc;color:#111827;min-height:100vh}
+
+/* ── Header ── */
+.header{
+  background:linear-gradient(135deg,#064e3b 0%,#065f46 50%,#047857 100%);
+  padding:20px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 16px rgba(0,0,0,.2);
+}
+.header-logo{display:flex;align-items:center;gap:12px}
+.header-logo .icon{font-size:28px}
+.header-logo .brand{color:#fff;font-size:22px;font-weight:800;letter-spacing:-.5px}
+.header-logo .tagline{color:#6ee7b7;font-size:13px;margin-top:1px}
+.header-user{display:flex;align-items:center;gap:16px}
+.header-user .name{color:#d1fae5;font-size:15px;font-weight:600}
+.logout-btn{
+  background:rgba(255,255,255,.15);color:#fff;
+  border:1.5px solid rgba(255,255,255,.3);
+  border-radius:10px;padding:8px 16px;
+  font-family:inherit;font-size:13px;font-weight:600;
+  cursor:pointer;transition:background .2s;text-decoration:none;
+  display:inline-block;
+}
+.logout-btn:hover{background:rgba(255,255,255,.25)}
+
+/* ── Layout ── */
+.page{max-width:960px;margin:0 auto;padding:28px 20px 60px}
+
+/* ── Greeting ── */
+.greeting{margin-bottom:28px}
+.greeting h2{font-size:28px;font-weight:800;color:#064e3b}
+.greeting p{font-size:15px;color:#6b7280;margin-top:4px}
+
+/* ── Stats row ── */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.stat-card{
+  background:#fff;border-radius:18px;padding:22px 20px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+  display:flex;align-items:center;gap:16px;
+  border:1.5px solid #f3f4f6;
+}
+.stat-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+  flex-shrink:0;
+}
+.stat-icon.green{background:linear-gradient(135deg,#d1fae5,#a7f3d0)}
+.stat-icon.blue{background:linear-gradient(135deg,#dbeafe,#bfdbfe)}
+.stat-icon.orange{background:linear-gradient(135deg,#fef3c7,#fde68a)}
+.stat-value{font-size:28px;font-weight:800;color:#111827;line-height:1}
+.stat-label{font-size:13px;color:#6b7280;margin-top:4px}
+
+/* ── Section header ── */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;
+}
+.section-title{font-size:20px;font-weight:700;color:#111827}
+.checkin-btn{
+  background:linear-gradient(135deg,#10B981,#059669);
+  color:#fff;border:none;border-radius:12px;
+  padding:10px 22px;font-family:inherit;font-size:15px;font-weight:700;
+  cursor:pointer;box-shadow:0 3px 12px rgba(16,185,129,.35);
+  transition:transform .15s,box-shadow .15s;
+}
+.checkin-btn:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(16,185,129,.45)}
+
+/* ── Weekly schedule ── */
+.schedule-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:10px;margin-bottom:28px;
+}
+.day-col{background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05);border:1.5px solid #f3f4f6}
+.day-header{
+  background:linear-gradient(135deg,#f0fdf4,#dcfce7);
+  padding:10px 8px;text-align:center;
+  font-size:13px;font-weight:700;color:#065f46;border-bottom:1px solid #d1fae5;
+}
+.day-body{padding:8px}
+.program-pill{
+  background:linear-gradient(135deg,#10B981,#059669);
+  color:#fff;border-radius:10px;padding:8px 10px;
+  font-size:12px;font-weight:600;text-align:center;
+  margin-bottom:6px;line-height:1.4;
+}
+.program-pill .ptype{font-size:13px;font-weight:700;display:block}
+.program-pill .ptime{font-size:11px;opacity:.9;display:block;margin-top:2px}
+.program-pill .ptrainer{font-size:11px;opacity:.8;display:block}
+.no-program{text-align:center;padding:16px 4px;color:#d1d5db;font-size:22px}
+
+/* ── Chart card ── */
+.chart-card{
+  background:#fff;border-radius:20px;padding:24px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);border:1.5px solid #f3f4f6;
+  margin-bottom:28px;
+}
+.chart-card canvas{max-height:260px}
+
+/* ── Recent check-ins ── */
+.checkins-card{
+  background:#fff;border-radius:20px;padding:24px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);border:1.5px solid #f3f4f6;
+}
+.checkin-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid #f9fafb;
+}
+.checkin-row:last-child{border-bottom:none}
+.checkin-left{display:flex;align-items:center;gap:12px}
+.checkin-dot{
+  width:40px;height:40px;border-radius:12px;
+  background:linear-gradient(135deg,#d1fae5,#a7f3d0);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  flex-shrink:0;
+}
+.checkin-info strong{font-size:15px;font-weight:700;color:#111827;display:block}
+.checkin-info span{font-size:13px;color:#6b7280}
+.checkin-cal{
+  background:#f0fdf4;color:#065f46;
+  border-radius:8px;padding:4px 12px;
+  font-size:13px;font-weight:700;
+}
+.empty{text-align:center;padding:32px;color:#9ca3af;font-size:15px}
+
+/* ── Modal ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  display:none;align-items:center;justify-content:center;z-index:200;
+  backdrop-filter:blur(4px);
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:#fff;border-radius:24px;padding:36px 32px;
+  width:100%;max-width:440px;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  animation:slideUp .25s ease;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal h3{font-size:22px;font-weight:800;color:#064e3b;margin-bottom:6px}
+.modal .modal-sub{font-size:14px;color:#6b7280;margin-bottom:24px}
+.program-options{margin-bottom:24px}
+.program-option{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 16px;border-radius:12px;margin-bottom:8px;
+  border:2px solid #e5e7eb;cursor:pointer;transition:border .2s,background .2s;
+}
+.program-option:hover{border-color:#10B981;background:#f0fdf4}
+.program-option input[type=radio]{accent-color:#10B981;width:18px;height:18px}
+.program-option label{cursor:pointer;flex:1}
+.program-option label strong{display:block;font-size:15px;color:#111827}
+.program-option label span{font-size:13px;color:#6b7280}
+.duration-group{margin-bottom:28px}
+.duration-label{font-size:15px;font-weight:700;color:#374151;margin-bottom:12px}
+.duration-btns{display:flex;gap:12px}
+.dur-btn{
+  flex:1;padding:14px;border-radius:12px;
+  border:2px solid #e5e7eb;background:#fafafa;
+  font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+.dur-btn:hover{border-color:#10B981;background:#f0fdf4;color:#065f46}
+.dur-btn.active{border-color:#10B981;background:linear-gradient(135deg,#10B981,#059669);color:#fff;box-shadow:0 4px 12px rgba(16,185,129,.3)}
+.modal-actions{display:flex;gap:12px}
+.btn-submit{
+  flex:2;padding:14px;
+  background:linear-gradient(135deg,#10B981,#059669);
+  color:#fff;border:none;border-radius:12px;
+  font-family:inherit;font-size:16px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 14px rgba(16,185,129,.35);transition:transform .15s;
+}
+.btn-submit:hover{transform:translateY(-1px)}
+.btn-cancel{
+  flex:1;padding:14px;background:#f3f4f6;
+  color:#6b7280;border:none;border-radius:12px;
+  font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;
+  transition:background .2s;
+}
+.btn-cancel:hover{background:#e5e7eb}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .stats{grid-template-columns:1fr 1fr}
+  .stats .stat-card:last-child{grid-column:span 2}
+  .schedule-grid{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:420px){
+  .schedule-grid{grid-template-columns:repeat(2,1fr)}
+  .header-user .name{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-logo">
+    <div class="icon">💪</div>
+    <div>
+      <div class="brand">FitZone</div>
+      <div class="tagline">מועדון כושר</div>
+    </div>
+  </div>
+  <div class="header-user">
+    <span class="name">שלום, {{ customer.full_name.split()[0] }}!</span>
+    <a href="/logout" class="logout-btn">יציאה</a>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- Greeting -->
+  <div class="greeting">
+    <h2>הדשבורד שלי 🏋️</h2>
+    <p>{{ customer.branch and "סניף " ~ customer.branch or "" }}
+       {{ customer.join_date and "· חבר מ-" ~ customer.join_date[:7] or "" }}</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-icon green">🏃</div>
+      <div>
+        <div class="stat-value">{{ total_visits }}</div>
+        <div class="stat-label">סה"כ אימונים</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon orange">🔥</div>
+      <div>
+        <div class="stat-value">{{ "{:,}".format(total_calories) }}</div>
+        <div class="stat-label">קלוריות נשרפו</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon blue">📋</div>
+      <div>
+        <div class="stat-value">{{ programs|length }}</div>
+        <div class="stat-label">תוכניות אימון</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Schedule -->
+  <div class="section-header">
+    <div class="section-title">לוח שבועי</div>
+    <button class="checkin-btn" onclick="openCheckin()">✅ הגעתי לאימון!</button>
+  </div>
+
+  {% set days = ["ראשון","שני","שלישי","רביעי","חמישי","שישי","שבת"] %}
+  {% set prog_by_day = {} %}
+  {% for p in programs %}
+    {% if prog_by_day.update({p.day_of_week: prog_by_day.get(p.day_of_week, []) + [p]}) %}{% endif %}
+  {% endfor %}
+
+  <div class="schedule-grid">
+    {% for day in days %}
+    <div class="day-col">
+      <div class="day-header">{{ day }}</div>
+      <div class="day-body">
+        {% set day_progs = prog_by_day.get(day, []) %}
+        {% if day_progs %}
+          {% for p in day_progs %}
+          <div class="program-pill">
+            <span class="ptype">{{ p.program_type }}</span>
+            <span class="ptime">{{ p.start_time }}–{{ p.end_time }}</span>
+            <span class="ptrainer">{{ p.trainer_name }}</span>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-program">–</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Progress Chart -->
+  <div class="chart-card">
+    <div class="section-header" style="margin-bottom:20px">
+      <div class="section-title">📈 גרף התקדמות חודשי</div>
+    </div>
+    {% if monthly_visits != '[]' %}
+    <canvas id="progressChart"></canvas>
+    {% else %}
+    <div class="empty">עוד אין נתוני כניסות.<br>לחץ "הגעתי לאימון!" לאחר כל אימון 💪</div>
+    {% endif %}
+  </div>
+
+  <!-- Recent Check-ins -->
+  <div class="checkins-card">
+    <div class="section-title" style="margin-bottom:16px">⏱️ אימונים אחרונים</div>
+    {% if checkins %}
+      {% for c in checkins %}
+      <div class="checkin-row">
+        <div class="checkin-left">
+          <div class="checkin-dot">🏋️</div>
+          <div class="checkin-info">
+            <strong>{{ c.program_type or "אימון" }}{% if c.day_of_week %} – {{ c.day_of_week }}{% endif %}</strong>
+            <span>{{ c.checkin_date }} · {{ c.duration_min }} דקות</span>
+          </div>
+        </div>
+        <div class="checkin-cal">🔥 {{ c.calories }} קל'</div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="empty">עוד לא דיווחת על אימונים.<br>לחץ "הגעתי לאימון!" לאחר כל ביקור 🙌</div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Check-in Modal -->
+<div class="modal-overlay" id="checkinModal">
+  <div class="modal">
+    <h3>🏃 דיווח אימון</h3>
+    <div class="modal-sub">בחר את האימון שסיימת היום</div>
+
+    <form method="POST" action="/checkin">
+      <div class="program-options">
+        {% if programs %}
+          {% for p in programs %}
+          <div class="program-option" onclick="selectProgram(this)">
+            <input type="radio" name="program_id" id="p{{ p.id }}" value="{{ p.id }}"
+                   {% if loop.first %}checked{% endif %} required>
+            <label for="p{{ p.id }}">
+              <strong>{{ p.program_type }}</strong>
+              <span>{{ p.day_of_week }} · {{ p.start_time }}–{{ p.end_time }} · {{ p.trainer_name }}</span>
+            </label>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="color:#6b7280;text-align:center;padding:16px">לא נמצאו תוכניות אימון</div>
+        {% endif %}
+      </div>
+
+      <div class="duration-group">
+        <div class="duration-label">משך האימון:</div>
+        <input type="hidden" name="duration" id="durationInput" value="45">
+        <div class="duration-btns">
+          <button type="button" class="dur-btn active" onclick="setDuration(45,this)">
+            ⏱️ 45 דקות<br><small style="font-weight:400;font-size:12px">150 קלוריות</small>
+          </button>
+          <button type="button" class="dur-btn" onclick="setDuration(90,this)">
+            ⏱️ 90 דקות<br><small style="font-weight:400;font-size:12px">300 קלוריות</small>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" onclick="closeCheckin()">ביטול</button>
+        <button type="submit" class="btn-submit">✅ שלח דיווח</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ── Modal ──
+function openCheckin(){document.getElementById('checkinModal').classList.add('open')}
+function closeCheckin(){document.getElementById('checkinModal').classList.remove('open')}
+document.getElementById('checkinModal').addEventListener('click',function(e){
+  if(e.target===this)closeCheckin();
+});
+function selectProgram(el){
+  el.querySelector('input[type=radio]').checked=true;
+  document.querySelectorAll('.program-option').forEach(o=>o.style.borderColor='');
+  el.style.borderColor='#10B981';el.style.background='#f0fdf4';
+}
+function setDuration(val,btn){
+  document.getElementById('durationInput').value=val;
+  document.querySelectorAll('.dur-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// ── Chart.js ──
+{% if monthly_visits != '[]' %}
+const ctx=document.getElementById('progressChart').getContext('2d');
+new Chart(ctx,{
+  type:'bar',
+  data:{
+    labels:{{ monthly_labels|safe }},
+    datasets:[
+      {
+        label:'כניסות',
+        data:{{ monthly_visits|safe }},
+        backgroundColor:'rgba(16,185,129,.8)',
+        borderRadius:8,
+        borderSkipped:false,
+        yAxisID:'y1',
+      },
+      {
+        label:'קלוריות',
+        data:{{ monthly_cal|safe }},
+        type:'line',
+        borderColor:'#f59e0b',
+        backgroundColor:'rgba(245,158,11,.1)',
+        tension:.4,pointRadius:5,pointBackgroundColor:'#f59e0b',
+        fill:true,yAxisID:'y2',
+        borderWidth:2.5,
+      }
+    ]
+  },
+  options:{
+    responsive:true,
+    interaction:{mode:'index',intersect:false},
+    plugins:{
+      legend:{
+        position:'top',
+        labels:{font:{family:'Assistant',size:13},usePointStyle:true}
+      },
+      tooltip:{
+        rtl:true,
+        callbacks:{
+          label:ctx=>ctx.dataset.label+': '+(ctx.dataset.yAxisID==='y2'?ctx.parsed.y+' קל\'':ctx.parsed.y+' אימונים')
+        }
+      }
+    },
+    scales:{
+      x:{grid:{display:false},ticks:{font:{family:'Assistant',size:12}}},
+      y1:{
+        type:'linear',position:'right',
+        grid:{color:'rgba(0,0,0,.04)'},
+        ticks:{stepSize:1,font:{family:'Assistant',size:12}},
+        title:{display:true,text:'כניסות',font:{family:'Assistant',size:12}}
+      },
+      y2:{
+        type:'linear',position:'left',
+        grid:{display:false},
+        ticks:{font:{family:'Assistant',size:12}},
+        title:{display:true,text:'קלוריות',font:{family:'Assistant',size:12}}
+      }
+    }
+  }
+});
+{% endif %}
+</script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitZone – כניסה</title>
+<link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Assistant',sans-serif;
+  min-height:100vh;
+  background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 40%,#f0f9ff 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.card{
+  background:#fff;
+  border-radius:24px;
+  box-shadow:0 8px 40px rgba(16,185,129,.12),0 2px 8px rgba(0,0,0,.06);
+  padding:48px 40px;
+  width:100%;max-width:420px;
+}
+.logo{
+  text-align:center;margin-bottom:32px;
+}
+.logo-icon{
+  width:72px;height:72px;
+  background:linear-gradient(135deg,#10B981,#059669);
+  border-radius:20px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:36px;margin-bottom:12px;
+  box-shadow:0 4px 16px rgba(16,185,129,.3);
+}
+.logo h1{font-size:28px;font-weight:800;color:#064e3b;letter-spacing:-.5px}
+.logo p{font-size:14px;color:#6b7280;margin-top:4px}
+h2{font-size:22px;font-weight:700;color:#111827;margin-bottom:24px}
+label{display:block;font-size:14px;font-weight:600;color:#374151;margin-bottom:6px}
+input[type=email],input[type=password]{
+  width:100%;padding:13px 16px;
+  border:2px solid #e5e7eb;border-radius:12px;
+  font-family:inherit;font-size:15px;color:#111827;
+  transition:border .2s,box-shadow .2s;outline:none;
+  background:#fafafa;
+}
+input:focus{border-color:#10B981;box-shadow:0 0 0 3px rgba(16,185,129,.1);background:#fff}
+.field{margin-bottom:18px}
+.btn{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,#10B981,#059669);
+  color:#fff;border:none;border-radius:12px;
+  font-family:inherit;font-size:16px;font-weight:700;
+  cursor:pointer;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 4px 14px rgba(16,185,129,.35);
+  margin-top:8px;
+}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(16,185,129,.4)}
+.btn:active{transform:translateY(0)}
+.error{
+  background:#fef2f2;border:1.5px solid #fca5a5;
+  color:#dc2626;border-radius:10px;padding:12px 16px;
+  font-size:14px;margin-bottom:20px;
+}
+.footer{text-align:center;margin-top:24px;font-size:14px;color:#6b7280}
+.footer a{color:#10B981;font-weight:600;text-decoration:none}
+.footer a:hover{text-decoration:underline}
+.divider{height:1px;background:#f3f4f6;margin:24px 0}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">
+    <div class="logo-icon">💪</div>
+    <h1>FitZone</h1>
+    <p>מועדון כושר – פורטל חברים</p>
+  </div>
+  <h2>ברוכים הבאים!</h2>
+
+  {% if error %}
+  <div class="error">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <form method="POST">
+    <div class="field">
+      <label>אימייל</label>
+      <input type="email" name="email" placeholder="your@email.com" required autocomplete="email">
+    </div>
+    <div class="field">
+      <label>סיסמה</label>
+      <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+    <button type="submit" class="btn">🔑 כניסה</button>
+  </form>
+
+  <div class="divider"></div>
+  <div class="footer">
+    חדש ב-FitZone? <a href="/register">הרשמה כאן »</a>
+  </div>
+</div>
+</body>
+</html>
