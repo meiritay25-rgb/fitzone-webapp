@@ -15,6 +15,7 @@ DB_PATH      = os.environ.get("DB_PATH", "fitzone.db")
 USE_PG       = bool(DATABASE_URL)
 
 DAY_ORDER = {"ראשון":1,"שני":2,"שלישי":3,"רביעי":4,"חמישי":5,"שישי":6,"שבת":7}
+DAY_ABBR  = {"א":"ראשון","ב":"שני","ג":"שלישי","ד":"רביעי","ה":"חמישי","ו":"שישי","ש":"שבת"}
 
 print(f"[STARTUP] USE_PG={USE_PG} | DATABASE_URL={'set' if DATABASE_URL else 'EMPTY'}", flush=True)
 
@@ -220,6 +221,8 @@ def dashboard():
 
     tz       = cust["tz"]
     programs = db_all(db, "SELECT * FROM programs WHERE tz=?", (tz,))
+    for p in programs:
+        p["day_of_week"] = DAY_ABBR.get(p["day_of_week"], p["day_of_week"])
     programs = sorted(programs, key=lambda p: DAY_ORDER.get(p["day_of_week"], 99))
 
     checkins = db_all(db,
