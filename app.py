@@ -20,24 +20,24 @@ print(f"[STARTUP] USE_PG={USE_PG} | DATABASE_URL={'set' if DATABASE_URL else 'EM
 
 # ─── DB abstraction ─────────────────────────────────────────
 if USE_PG:
-    import psycopg2, psycopg2.extras
+    import psycopg
+    from psycopg.rows import dict_row
 
     def get_db():
-        return psycopg2.connect(DATABASE_URL)
+        return psycopg.connect(DATABASE_URL, row_factory=dict_row)
 
     def _q(sql):
         return sql.replace("?", "%s")
 
     def db_one(db, sql, p=()):
-        with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as c:
+        with db.cursor() as c:
             c.execute(_q(sql), p)
-            r = c.fetchone()
-            return dict(r) if r else None
+            return c.fetchone()
 
     def db_all(db, sql, p=()):
-        with db.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as c:
+        with db.cursor() as c:
             c.execute(_q(sql), p)
-            return [dict(r) for r in c.fetchall()]
+            return c.fetchall()
 
     def db_run(db, sql, p=()):
         with db.cursor() as c:
