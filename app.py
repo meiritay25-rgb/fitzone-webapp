@@ -318,5 +318,16 @@ def api_sync():
     return jsonify({"ok": True, "tz": data["tz"]})
 
 
+@app.route("/api/clean-programs", methods=["POST"])
+def api_clean_programs():
+    if request.headers.get("X-Sync-Key", "") != SYNC_API_KEY:
+        abort(403)
+    db = get_db()
+    db_run(db, "DELETE FROM programs WHERE program_type LIKE '%?%' OR day_of_week LIKE '%?%' OR trainer_name LIKE '%?%'")
+    db.commit()
+    db.close()
+    return jsonify({"ok": True})
+
+
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port=5000)
