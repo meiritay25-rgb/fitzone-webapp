@@ -388,27 +388,27 @@ function setDuration(val,btn){
 {% if monthly_visits != '[]' %}
 const ctx=document.getElementById('progressChart').getContext('2d');
 new Chart(ctx,{
-  type:'bar',
+  type:'line',
   data:{
     labels:{{ monthly_labels|safe }},
     datasets:[
       {
         label:'כניסות',
         data:{{ monthly_visits|safe }},
-        backgroundColor:'rgba(16,185,129,.8)',
-        borderRadius:8,
-        borderSkipped:false,
+        borderColor:'#10b981',
+        backgroundColor:'rgba(16,185,129,.12)',
+        tension:.4,pointRadius:6,pointBackgroundColor:'#10b981',
+        pointHoverRadius:8,fill:true,borderWidth:2.5,
         yAxisID:'y1',
       },
       {
         label:'קלוריות',
         data:{{ monthly_cal|safe }},
-        type:'line',
         borderColor:'#f59e0b',
-        backgroundColor:'rgba(245,158,11,.1)',
-        tension:.4,pointRadius:5,pointBackgroundColor:'#f59e0b',
-        fill:true,yAxisID:'y2',
-        borderWidth:2.5,
+        backgroundColor:'rgba(245,158,11,.08)',
+        tension:.4,pointRadius:6,pointBackgroundColor:'#f59e0b',
+        pointHoverRadius:8,fill:true,borderWidth:2.5,
+        yAxisID:'y2',
       }
     ]
   },
@@ -418,10 +418,12 @@ new Chart(ctx,{
     plugins:{
       legend:{
         position:'top',
-        labels:{font:{family:'Assistant',size:13},usePointStyle:true}
+        labels:{font:{family:'Assistant',size:13},usePointStyle:true,padding:20}
       },
       tooltip:{
         rtl:true,
+        backgroundColor:'rgba(17,24,39,.85)',
+        padding:12,
         callbacks:{
           label:ctx=>ctx.dataset.label+': '+(ctx.dataset.yAxisID==='y2'?ctx.parsed.y+' קל\'':ctx.parsed.y+' אימונים')
         }
@@ -431,7 +433,7 @@ new Chart(ctx,{
       x:{grid:{display:false},ticks:{font:{family:'Assistant',size:12}}},
       y1:{
         type:'linear',position:'right',
-        grid:{color:'rgba(0,0,0,.04)'},
+        grid:{color:'rgba(0,0,0,.06)'},
         ticks:{stepSize:1,font:{family:'Assistant',size:12}},
         title:{display:true,text:'כניסות',font:{family:'Assistant',size:12}}
       },
