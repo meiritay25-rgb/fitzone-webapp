@@ -16,6 +16,7 @@ USE_PG       = bool(DATABASE_URL)
 
 DAY_ORDER = {"ראשון":1,"שני":2,"שלישי":3,"רביעי":4,"חמישי":5,"שישי":6,"שבת":7}
 
+print(f"[STARTUP] USE_PG={USE_PG} | DATABASE_URL={'set' if DATABASE_URL else 'EMPTY'}", flush=True)
 
 # ─── DB abstraction ─────────────────────────────────────────
 if USE_PG:
